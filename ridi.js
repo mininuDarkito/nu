@@ -1,5 +1,5 @@
-deixe com que isso possa ser usado no console do devtools
-(async function() {
+
+(async () => {
   'use strict';
 
   /*************** UTILIDADES ****************/
@@ -9,6 +9,7 @@ deixe com que isso possa ser usado no console do devtools
       script.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
       document.head.appendChild(script);
       await new Promise(r => script.onload = r);
+      console.log("✅ JSZip carregado!");
     }
   }
 
@@ -44,9 +45,12 @@ deixe com que isso possa ser usado no console do devtools
   }
 
   function createDownloadButton(onClick) {
+    const existing = document.querySelector('.ridi-download-btn');
+    if (existing) existing.remove();
+
     const btn = document.createElement('button');
     btn.className = 'ridi-download-btn';
-    btn.textContent = "📥 Baizar Cap[itulo";
+    btn.textContent = "📥 Baixar Capítulo";
     btn.onclick = onClick;
     document.body.appendChild(btn);
     return btn;
@@ -142,10 +146,9 @@ deixe com que isso possa ser usado no console do devtools
       const zipBlob = await zip.generateAsync({ type: "blob" });
 
       const a = document.createElement("a");
-      const t = document.title
+      const t = document.title.trim().replace(/[\\/:*?"<>|]/g, "_");
       a.href = URL.createObjectURL(zipBlob);
       a.download = `${t}.zip`;
-      //a.download = `ridibooks_${book_id}.zip`;
       a.click();
 
       btn.textContent = "✅ Download concluído!";
@@ -160,8 +163,11 @@ deixe com que isso possa ser usado no console do devtools
     }, 4000);
   }
 
-  window.addEventListener('load', () => {
+  // Cria o botão assim que o DOM estiver pronto
+  if (document.readyState === "complete" || document.readyState === "interactive") {
     createDownloadButton(downloadChapter);
-  });
+  } else {
+    window.addEventListener('load', () => createDownloadButton(downloadChapter));
+  }
 
 })();
